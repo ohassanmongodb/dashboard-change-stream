@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Email</title>
+    <!-- Includi SockJS e Stomp.js via WebJars -->
+    <script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
+</head>
+<body>
+    <h1>Dashboard Email</h1>
+    <div>
+        <p>Email lette: <span id="readCount">--</span></p>
+        <p>Email non lette: <span id="unreadCount">--</span></p>
+        <p>Email urgenti: <span id="urgentCount">--</span></p>
+    </div>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/api/dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('readCount').innerText = data.readCount;
+                    document.getElementById('unreadCount').innerText = data.unreadCount;
+                    document.getElementById('urgentCount').innerText = data.urgentCount;
+                })
+                .catch(err => console.error('Errore nel fetch iniziale:', err));
+
+            var socket = new SockJS('/ws');
+            var stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connesso: ' + frame);
+                stompClient.subscribe('/topic/dashboard', function(message) {
+                    var dto = JSON.parse(message.body);
+                    document.getElementById('readCount').innerText = dto.readCount;
+                    document.getElementById('unreadCount').innerText = dto.unreadCount;
+                    document.getElementById('urgentCount').innerText = dto.urgentCount;
+                });
+            }, function(error) {
+                console.error('Errore connessione STOMP:', error);
+            });
+        });
+    </script>
+</body>
+</html>
