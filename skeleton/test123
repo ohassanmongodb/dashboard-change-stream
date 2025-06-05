@@ -1,0 +1,48 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: spring-boot-microservice
+  title: Spring 1Boot Microservice 1Template
+  description: Crea un microservizio Spring Boot con MongoDB Change Stream
+  tags:
+    - spring
+    - mongodb
+spec:
+  owner: team-dev
+  type: service
+
+  parameters:
+    - title: Parametri
+      required: [name, owner]
+      properties:
+        name:
+          type: string
+          title: Nome del nuovo microservizio
+        owner:
+          type: string
+          title: Owner (es. team-dev)
+
+  steps:
+    - id: fetch-base
+      name: Clona il progetto base
+      action: fetch:template
+      input:
+        url: https://github.com/ohassanmongodb/dashboard-change-stream
+        targetPath: ./new-service
+        values:
+          name: ${{ parameters.name }}
+
+    - id: publish
+      name: Pubblica su GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?repo=${{ parameters.name }}&owner=ohassanmongodb
+        repoVisibility: public
+        defaultBranch: main
+
+    - id: register
+      name: Registra nel catalogo
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: catalog-info.yaml
