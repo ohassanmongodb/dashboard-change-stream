@@ -1,0 +1,48 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: spring-boot-microservice
+  title: Spring Boot Microservice Template
+  description: Crea un microservizio Spring Boot con MongoDB Change Stream
+spec:
+  owner: team-dev
+  type: service
+
+  parameters:
+    - title: Dati del nuovo microservizio
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          type: string
+          title: Nome del microservizio
+        owner:
+          type: string
+          title: Team Owner
+
+  steps:
+    - id: fetch-base
+      name: Fetch base template
+      action: fetch:template
+      input:
+        url: https://github.com/ohassanmongodb/dashboard-change-stream
+        # o usa: ./ se usi `template.yaml` nel repo
+        targetPath: .
+        values:
+          name: ${{ parameters.name }}
+
+    - id: publish
+      name: Pubblica su GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=ohassanmongodb&repo=${{ parameters.name }}
+        repoVisibility: public
+        defaultBranch: main
+
+    - id: register
+      name: Registra in Backstage
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: catalog-info.yaml
