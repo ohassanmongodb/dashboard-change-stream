@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dashboard-change-stream
+  description: Microservizio Spring Boot con MongoDB Change Stream e dashboard WebSocket
+  annotations:
+    github.com/project-slug: ohassanmongodb/dashboard-change-stream
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  lifecycle: experimental
+  owner: team-dev
