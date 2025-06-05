@@ -4,45 +4,38 @@ metadata:
   name: spring-boot-microservice
   title: Spring Boot Microservice Template
   description: Crea un microservizio Spring Boot con MongoDB Change Stream
+  tags:
+    - spring
+    - mongodb
 spec:
   owner: team-dev
   type: service
 
   parameters:
-    - title: Dati del nuovo microservizio
+    - title: Parametri
       required:
         - name
         - owner
       properties:
         name:
           type: string
-          title: Nome del microservizio
+          title: Nome del servizio
         owner:
           type: string
-          title: Team Owner
+          title: Team responsabile
 
   steps:
     - id: fetch-base
-      name: Fetch base template
+      name: Clona il template
       action: fetch:template
       input:
         url: https://github.com/ohassanmongodb/dashboard-change-stream
-        # o usa: ./ se usi `template.yaml` nel repo
-        targetPath: .
         values:
           name: ${{ parameters.name }}
-
-    - id: publish
-      name: Pubblica su GitHub
-      action: publish:github
-      input:
-        repoUrl: github.com?owner=ohassanmongodb&repo=${{ parameters.name }}
-        repoVisibility: public
-        defaultBranch: main
 
     - id: register
       name: Registra in Backstage
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        repoContentsUrl: https://github.com/ohassanmongodb/dashboard-change-stream/blob/main/
         catalogInfoPath: catalog-info.yaml
